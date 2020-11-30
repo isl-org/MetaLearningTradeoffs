@@ -38,7 +38,7 @@ class SeqWriter(object):
 class HumanOutputFormat(KVWriter, SeqWriter):
     def __init__(self, filename_or_file):
         if isinstance(filename_or_file, str):
-            self.file = open(filename_or_file, 'wt')
+            self.file = open(filename_or_file, 'at')
             self.own_file = True
         else:
             assert hasattr(filename_or_file, 'read'), 'expected file or str, got %s'%filename_or_file
@@ -95,7 +95,7 @@ class HumanOutputFormat(KVWriter, SeqWriter):
 
 class JSONOutputFormat(KVWriter):
     def __init__(self, filename):
-        self.file = open(filename, 'wt')
+        self.file = open(filename, 'at')
 
     def writekvs(self, kvs):
         for k, v in sorted(kvs.items()):
@@ -111,7 +111,7 @@ class JSONOutputFormat(KVWriter):
 
 class CSVOutputFormat(KVWriter):
     def __init__(self, filename):
-        self.file = open(filename, 'w+t')
+        self.file = open(filename, 'a+t')
         self.keys = []
         self.sep = ','
 
@@ -384,6 +384,9 @@ class Logger(object):
                 joblib.dump(params, file_name, compress=3)
             elif self.snapshot_mode == "gap":
                 if itr % self.snapshot_gap == 0:
+                    itr_file_name = osp.join(self.dir, 'itr.txt')
+                    with open(itr_file_name, 'w') as itr_file:
+                        itr_file.write(str(itr))
                     file_name = osp.join(self.dir, 'itr_%d.pkl' % itr)
                     joblib.dump(params, file_name, compress=3)
             elif self.snapshot_mode == 'last_gap':
