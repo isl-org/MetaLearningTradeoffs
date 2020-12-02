@@ -1,4 +1,7 @@
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
 import numpy as np
 from scipy.stats import special_ortho_group
 
@@ -196,22 +199,22 @@ def compare_mses(p, beta, fig_path):
     # For each value of alpha, create heatmaps of whether MAML has lower loss than DRS
     # pre and post update
     for f in range(len(alphas)):
-        fig = plt.figure()
-        im1 = plt.contour(num_data, num_tasks, compare_preupdate[:,:,f])
+        fig = plt.figure(figsize=(3,3))
+        im1 = plt.contourf(num_data, num_tasks, compare_preupdate[:,:,f], np.linspace(-0.01, 1.01, 40), vmin=0,vmax=1, cmap='RdBu_r')
         plt.xscale('log')
         plt.yscale('log')
         plt.xlabel("N")
         plt.ylabel("M")
-        plt.clabel(im1, inline=1, fontsize=10)
+        plt.tight_layout()
         fig.savefig(fig_path+"preupdate_alpha_{}.png".format(int(alphas[f]*100)))
         plt.close(fig)
 
-        fig = plt.figure()
-        im2 = plt.contour(num_data, num_tasks, compare_postupdate[:,:,f])
+        fig = plt.figure(figsize=(3,3))
+        im2 = plt.contourf(num_data, num_tasks, compare_postupdate[:,:,f], np.linspace(-0.01, 1.01, 40), vmin=0,vmax=1, cmap='RdBu_r')
         plt.xscale('log')
         plt.yscale('log')
         plt.xlabel("N")
         plt.ylabel("M")
-        plt.clabel(im2, inline=1, fontsize=10)
+        plt.tight_layout()
         fig.savefig(fig_path+"postupdate_alpha_{}.png".format(int(alphas[f]*100)))
         plt.close(fig)
