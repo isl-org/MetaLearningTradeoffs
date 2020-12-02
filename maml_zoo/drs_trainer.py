@@ -92,7 +92,7 @@ class Trainer(object):
                             samples_data_flattened[key] = samples_data[i][key]
                         else:
                             if key == 'env_infos':
-                                for env_key in samples.data[i][key].keys():
+                                for env_key in samples_data[i][key].keys():
                                     samples_data_flattened[key][env_key] = np.concatenate((samples_data_flattened[key][env_key], samples_data[i][key][env_key]), axis=0)
                             elif key == 'agent_infos':
                                 for agent_key in samples_data[i][key].keys():

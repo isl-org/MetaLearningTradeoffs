@@ -98,7 +98,7 @@ class Tester(object):
                 self.sampler.update_tasks()
 
                 list_sampling_time, list_step_time, list_proc_samples_time = [], [], []
-                all_total_rewards = np.zeros(self.sampler.rollouts_per_meta_task*(self.n_updates+1))
+                all_total_rewards = np.zeros(self.sampler.envs_per_task*(self.n_updates+1))
                 avg_rollout_reward = np.zeros(self.n_updates+1) # all_total_rewards averaged over each update
 
                 for update in range(self.n_updates+1):
@@ -109,10 +109,10 @@ class Tester(object):
                     logger.log("Obtaining samples...")
                     time_env_sampling_start = time.time()
                     paths = self.sampler.obtain_samples(log=True, log_prefix='Update_%d-' % (update+1))
-                    for l in range(self.sampler.rollouts_per_meta_task):
+                    for l in range(self.sampler.envs_per_task):
                         rollout = paths[0][l] # dictionary mapping obs, actions, etc. to trajectory
                         rollout_rewards = rollout['rewards']
-                        all_total_rewards[(l+self.sampler.rollouts_per_meta_task*update)] = np.sum(rollout_rewards)
+                        all_total_rewards[(l+self.sampler.envs_per_task*update)] = np.sum(rollout_rewards)
                         avg_rollout_reward[update] += (np.sum(rollout_rewards)-avg_rollout_reward[update])/(l+1) 
                         # incremental average computation
                     list_sampling_time.append(time.time() - time_env_sampling_start)
