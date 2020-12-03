@@ -1,151 +1,69 @@
-[![Build Status](https://api.travis-ci.com/jonasrothfuss/ProMP.svg?branch=master)](https://travis-ci.com/jonasrothfuss/ProMP)
-[![Docs](https://readthedocs.org/projects/promp/badge/?version=latest)](https://promp.readthedocs.io)
+# Modeling and Optimization Trade-off in Meta-learning
 
-# ProMP: Proximal Meta-Policy Search
-Implementations corresponding to ProMP ([Rothfuss et al., 2018](https://arxiv.org/abs/1810.06784)). 
-Overall this repository consists of two branches:
+This repository contains the code used to obtain the experimental results in the paper [Modeling and Optimization Trade-off in Meta-learning](https://arxiv.org/abs/2010.12916), Gao and Sener (NeurIPS 2020).
 
-1) master: lightweight branch that provides the necessary code to run Meta-RL algorithms such as ProMP, E-MAML, MAML.
-            This branch is meant to provide an easy start with Meta-RL and can be integrated into other projects and setups.
-2) full-code: branch that provides the comprehensive code that was used to produce the experimental results in [Rothfuss et al. (2018)](https://arxiv.org/abs/1810.06784).
-              This includes experiment scripts and plotting scripts that can be used to reproduce the experimental results in the paper.
-              
-The code is written in Python 3 and builds on [Tensorflow](https://www.tensorflow.org/). 
-Many of the provided reinforcement learning environments require the [Mujoco](http://www.mujoco.org/) physics engine.
-Overall the code was developed under consideration of modularity and computational efficiency.
-Many components of the Meta-RL algorithm are parallelized either using either [MPI](https://mpi4py.readthedocs.io/en/stable/) 
-or [Tensorflow](https://www.tensorflow.org/) in order to ensure efficient use of all CPU cores.
+It is based on the full_code branch of the [ProMP](https://github.com/jonasrothfuss/ProMP) repository.
 
-## Documentation
+The code is written in Python 3. The part corresponding to the linear regression experiment only requires [NumPy](https://numpy.org), while the part corresponding to the reinforcement learning experiments also requires [Tensorflow](https://www.tensorflow.org/) and the [Mujoco](http://www.mujoco.org/) physics engine.
+Some of the reinforcement learning environments can be found in this repository, and the rest are from [MetaWorld](https://github.com/rlworkgroup/metaworld).
 
-An API specification and explanation of the code components can be found [here](https://promp.readthedocs.io/en/latest/).
-Also the documentation can be build locally by running the following commands
+## Installation
 
+Please follow the installation instructions provided by the [ProMP](https://github.com/jonasrothfuss/ProMP) repository and the [MetaWorld](https://github.com/rlworkgroup/metaworld) repository. 
+For the latter, please use the api-rework branch for compatibility (this has already been added to requirements.txt).
+
+## Running the experiments
+
+### Linear regression
+
+Execute
 ```
-# ensure that you are in the root folder of the project
-cd docs
-# install the sphinx documentaiton tool dependencies
-pip install requirements.txt
-# build the documentaiton
-make clean && make html
-# now the html documentation can be found under docs/build/html/index.html
+python3 linear_regression/run_experiment.py --p 1 --beta 2 --seed 1
 ```
+The figures can then be found in the folder `p-1_beta-2_seed-1/figures`.
 
-## Installation / Dependencies
-The provided code can be either run in A) docker container provided by us or B) using python on
-your local machine. The latter requires multiple installation steps in order to setup dependencies.
+### Reinforcement learning
 
-### A. Docker
-If not installed yet, [set up](https://docs.docker.com/install/) docker on your machine.
-Pull our docker container ``jonasrothfuss/promp`` from docker-hub:
-
+To create all the executable scripts that we need to run, execute
 ```
-docker pull jonasrothfuss/promp
+python3 experiments/benchmark/run.py
 ```
+They will be found in the folder `scripts`.
+The training scripts are of the form `algorithm_environment_mode_seed.sh`, and the testing scripts are of the form `test_algorithm_environment_mode_seed_checkpoint.sh`.
+- `algorithm` is replaced by `ppo` (DRS+PPO), `promp` (ProMP), `trpo` (DRS+TRPO), `trpomaml` (TRPO-MAML).
+- `environment` and `mode` are replaced by 
+  - `walker` and `params-interpolate` (Walker2DRandParams) 
+  - `walker` and `goal-interpolate` (Walker2DRandVel)
+  - `cheetah` and `goal-interpolate` (HalfCheetahRandVel)
+  - `hopper` and `params-interpolate` (HopperRandParams)
+  - `metaworld` and `ml1-push` (ML1-Push)
+  - `metaworld` and `ml1-reach` (ML1-Reach)
+  - `metaworld` and `ml10` (ML10)
+  - `metaworld` and `ml45` (ML45)
+- `seed`, the random seed, is replaced by integers 1-5.
+- `checkpoint`, the policies stored at various stages during training, is replaced by integers 0-20.
 
-All the necessary dependencies are already installed inside the docker container.
-
-### B. Anaconda or Virtualenv
-
-##### B.1. Installing MPI
-Ensure that you have a working MPI implementation ([see here](https://mpi4py.readthedocs.io/en/stable/install.html) for more instructions). 
-
-For Ubuntu you can install MPI through the package manager:
-
+After all runs are finished, the figures can be created by executing
 ```
-sudo apt-get install libopenmpi-dev
+python3 experiments/benchmark/summary.py
 ```
-
-##### B.2. Create either venv or conda environment and activate it
-
-###### Virtualenv
-```
-pip install --upgrade virtualenv
-virtualenv <venv-name>
-source <venv-name>/bin/activate
-```
-
-###### Anaconda 
-If not done yet, install [anaconda](https://www.anaconda.com/) by following the instructions [here](https://www.anaconda.com/download/#linux).
-Then reate a anaconda environment, activate it and install the requirements in [`requirements.txt`](requirements.txt).
-```
-conda create -n <env-name> python=3.6
-source activate <env-name>
-```
-
-##### B.3. Install the required python dependencies
-```
-pip install -r requirements.txt
-```
-
-##### B.4. Set up the Mujoco physics engine and mujoco-py
-For running the majority of the provided Meta-RL environments, the Mujoco physics engine as well as a 
-corresponding python wrapper are required.
-For setting up [Mujoco](http://www.mujoco.org/) and [mujoco-py](https://github.com/openai/mujoco-py), 
-please follow the instructions [here](https://github.com/openai/mujoco-py).
-
-### Setting up the doodad experiment launcher with EC2 support
-
-Install AWS commandline interface
-
-```
-sudo apt-get install awscli
-```
-
-and configure the asw cli
-
-```
-aws configure
-```
-
-Clone the doodad repository 
-
-```
-git clone https://github.com/jonasrothfuss/doodad.git
-```
-
-Install the extra package requirements for doodad
-```
-cd doodad && pip install -r requirements.txt
-```
-
-Configure doodad for your ec2 account. First you have to specify the following environment variables in your ~/.bashrc: 
-AWS_ACCESS_KEY, AWS_ACCESS_KEY, DOODAD_S3_BUCKET
-
-Then run
-```
-python scripts/setup_ec2.py
-```
-
-Set S3_BUCKET_NAME in experiment_utils/config.py to your bucket name
-
-## Running ProMP
-In order to run the ProMP algorithm point environment (no Mujoco needed) with default configurations execute:
-```
-python run_scripts/pro-mp_run_point_mass.py 
-```
-
-To run the ProMP algorithm in a Mujoco environment with default configurations:
-```
-python run_scripts/pro-mp_run_mujoco.py 
-```
-
-The run configuration can be change either in the run script directly or by providing a JSON configuration file with all
-the necessary hyperparameters. A JSON configuration file can be provided through the flag. Additionally the dump path 
-can be specified through the dump_path flag:
-
-```
-python run_scripts/pro-mp_run.py --config_file <config_file_path> --dump_path <dump_path>
-```
-
-Additionally, in order to run the the gradient-based meta-learning methods MAML and E-MAML ([Finn et. al., 2017](https://arxiv.org/abs/1703.03400) and
-[Stadie et. al., 2018](https://arxiv.org/abs/1803.01118)) in a Mujoco environment with the default configuration 
-execute, respectively:
-```
-python run_scripts/maml_run_mujoco.py 
-python run_scripts/e-maml_run_mujoco.py 
-```
+They will be found in the folder `results`.
 
 ## Acknowledgements
-This repository includes environments introduced in ([Duan et al., 2016](https://arxiv.org/abs/1611.02779), 
-[Finn et al., 2017](https://arxiv.org/abs/1703.03400)).
+
+We would like to thank Charles Packer for help during the creation of the code for the reinforcement learning experiments.
+
+## Citation
+
+To cite this repository in your research, please reference the following [paper](https://arxiv.org/abs/2010.12916):
+
+> Katelyn Gao and Ozan Sener. Modeling and Optimization Trade-off in Meta-Learning. *arXiv preprint arXiv:2010.12916* (2020).
+
+```TeX
+@misc{GaoSener2020,
+  Author = {Katelyn Gao and Ozan Sener},
+  Title = {Modeling and Optimization Trade-off in Meta-Learning},
+  Year = {2020},
+  Eprint = {arXiv:2010.12916},
+}
+```
