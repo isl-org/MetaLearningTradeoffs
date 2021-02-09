@@ -250,7 +250,7 @@ if __name__ == '__main__':
         else:
             raise NotImplementedError
 
-        hyperparams['n_evals'] = 10
+        hyperparams['n_evals'] = 1000
         hyperparams['n_updates'] = 5
 
     elif args.env == 'metaworld':
