@@ -3,7 +3,6 @@ import json
 import tensorflow as tf
 import numpy as np
 import argparse
-import joblib
 
 from rand_param_envs.hopper_rand_params import HopperRandParamsEnv
 from rand_param_envs.walker2d_rand_params import Walker2DRandParamsEnv
@@ -48,29 +47,19 @@ def run_experiment(hyperparams):
     else:
         env = normalize(hyperparams['train_env']())
 
-    # Pick up training where it left off if necessary
-    try:
-        with open(exp_dir+'/itr.txt', 'r') as itr_file:
-            for line in itr_file:
-                start_itr = int(line)+1
-    except:
-        start_itr = 0
+    start_itr = 0
 
     # Instantiate learner classes
     with tf.Session() as sess:
-        if start_itr > 0:
-            load_path = exp_dir+'/itr_'+str(start_itr-1)+'.pkl'
-            policy = joblib.load(load_path)['policy']
-        else:
-            policy = GaussianMLPPolicy(
-                    name="train-policy",
-                    obs_dim=np.prod(env.observation_space.shape),
-                    action_dim=np.prod(env.action_space.shape),
-                    hidden_sizes=hyperparams['hidden_sizes'],
-                    learn_std=hyperparams['learn_std'],
-                    hidden_nonlinearity=hyperparams['hidden_nonlinearity'],
-                    output_nonlinearity=hyperparams['output_nonlinearity'],
-            )
+        policy = GaussianMLPPolicy(
+                name="train-policy",
+                obs_dim=np.prod(env.observation_space.shape),
+                action_dim=np.prod(env.action_space.shape),
+                hidden_sizes=hyperparams['hidden_sizes'],
+                learn_std=hyperparams['learn_std'],
+                hidden_nonlinearity=hyperparams['hidden_nonlinearity'],
+                output_nonlinearity=hyperparams['output_nonlinearity'],
+        )
 
         sampler = MAMLSampler(
             env = env,
