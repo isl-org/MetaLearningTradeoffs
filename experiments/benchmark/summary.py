@@ -1,7 +1,6 @@
 import numpy as np
 import os
 import json
-import csv
 import joblib
 
 import matplotlib
@@ -117,14 +116,15 @@ for a in range(len(algos)):
 
 print("Contour plots of whether MAML is better than DRS, as functions of the checkpoint and update")
 
-def welch_test(target_mean, target_std, target_n, comp_mean, comp_std, comp_n):
+def welch_test(target_mean, target_std, target_n, comparison_mean, comparison_std, comparison_n):
     # Computes a Welch test to see if the comparitor sample is larger than the target
     # sample. This is a one-sided test.
+    # Modified from https://nbviewer.jupyter.org/url/argmin.net/code/atari_performance_profiles.ipynb
 
-    nu = ((target_std**2/target_n + comp_std**2/comp_n)**2/
-            (target_std**4/target_n/(target_n-1)+ comp_std**4/comp_n/(comp_n-1)))
-    t_stat = ((target_mean-comp_mean)
-            /np.sqrt(target_std**2/target_n+comp_std**2/comp_n))
+    nu = ((target_std**2/target_n + comparison_std**2/comparison_n)**2/
+            (target_std**4/target_n/(target_n-1)+ comparison_std**4/comparison_n/(comparison_n-1)))
+    t_stat = ((target_mean-comparison_mean)
+            /np.sqrt(target_std**2/target_n+comparison_std**2/comparison_n))
 
     return 0.5*betainc(nu/2,1/2,nu/(t_stat**2+nu))
 
