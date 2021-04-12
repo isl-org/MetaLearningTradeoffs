@@ -8,7 +8,9 @@ import json
 
 
 class NumpyEncoder(json.JSONEncoder):
-    """Ensures json.dumps doesn't crash on numpy types
+    """
+    Copied from https://github.com/sunblaze-ucb/rl-generalization/blob/master/examples/util.py
+    Ensures json.dumps doesn't crash on numpy types
     See: https://stackoverflow.com/questions/27050108/convert-numpy-type-to-python/27050186#27050186
     """
     def default(self, obj):
