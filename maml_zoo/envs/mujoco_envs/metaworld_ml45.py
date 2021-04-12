@@ -5,6 +5,10 @@ from metaworld.envs.mujoco.env_dict import HARD_MODE_ARGS_KWARGS, HARD_MODE_CLS_
 
 class ML45(MultiClassMultiTaskEnv, Benchmark, Serializable):
 
+    '''
+    Modified from https://github.com/rlworkgroup/metaworld/blob/api-rework/metaworld/benchmarks/ml45.py
+    '''
+
     def __init__(self, env_type='train', sample_all=False):
         assert env_type == 'train' or env_type == 'test'
         Serializable.quick_init(self, locals())
